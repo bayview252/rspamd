@@ -49,16 +49,16 @@ cnf['NETFLIX_YETNOT_NETFLIX'] = {
 	description = 'From OR Body Contains Netflix AND NOT Mailed from Netflix.com',
 }
 
--- Extend Netflix to other problematic domains - i.e. Apple
-local myre11 = 'From=/.*(dhl|apple|amazon|samsung)\\.com.*/i{header}' -- Mind local here
-local myre22 = 'From=/.*(dhl|apple|amazon|samsung).*/i{header}'
-local myre33 = '/(dhl|apple|amazon|samsung)/i{body}' -- Check the raw body for anycase bogus domain
+-- Extend Netflix to other problematic domains - i.e. Apple - Lazy spammers but won't detect spoofs
+local myre11 = 'From=/.*(dhl|fedex|apple|amazon|samsung).com.*/i{header}' 
+local myre22 = 'From=/.*(dhl|fedex|apple|amazon|samsung).*/i{header}'
 
-cnf['BOGUS_MAILFROM_APPLE'] = {
-	re = string.format('!(%s) && ((%s) || (%s))', myre11, myre22, myre33), -- use string.format to create expression
+cnf['BOGUS_MAIL_FROM_APPLE'] = {
+	re = string.format('!(%s) && (%s)', myre11, myre22), -- use string.format to create expression
 	score = 40,
-	description = 'From OR Body Contains Apple/DHL/Amazon/Samsung AND NOT Mailed from that domain',
+	description = 'From Contains Apple/FedEx/DHL/Amazon/Samsung AND NOT Mailed from that domain',
 }
+
 
 
 -- Local User Email in Subject
