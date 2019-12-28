@@ -88,8 +88,8 @@ cnf['BODY_CONTAINS_POLITE_LOCALUSEREMAIL'] = {
 -- --------------------------
 -- Subject & Body Matching --
 -- --------------------------
-local myneib1 = '/.*Neighbou?r|next door|f[ua5\\&\\%]ck.*/i{subject}'
-local myneib2 = '/.*Neighbou?r|next door|f[ua5\\&\\%]ck.*/i{body}'
+local myneib1 = 'Subject=/.*(Neighbou?r|next door|f.+ck).*/i{header}'
+local myneib2 = '/.*(Neighbou?r|next door|f.+ck).*/i{body}'
 
 cnf['SUBJ_NEXTDOOR'] = {
     re = string.format('(%s) || (%s)', myneib1, myneib2),
@@ -97,8 +97,8 @@ cnf['SUBJ_NEXTDOOR'] = {
     score = 40,
 }
 
-local mypharma1 = '/.*viagra|pills|edm|health secret|pharm.*/i{subject}'
-local mypharma2 = '/.*viagra|pills|edm|health secret|pharm.*/i{body}'
+local mypharma1 = 'Subject=/.*viagra|pills|health secret|pharm.*/i{header}'
+local mypharma2 = '/.*viagra|pills|health secret|pharm.*/i{body}'
 
 cnf['MY_VIAGRA'] = {
     re = string.format('(%s) || (%s)', mypharma1, mypharma2),
@@ -106,14 +106,9 @@ cnf['MY_VIAGRA'] = {
     score = 40,
 }
 
-local myrush = '/.*This is your Final|Last (Chance|Reminder|Notice).*/i{subject}'
-cnf['BETTER_HURRY'] = {
-    re = string.format('(%s)', myrush),
-    description = 'Final Reminders Spam',
-    score = 40,
-}
 
-local myrush = '/.*This is your Final|Last (Chance|Reminder|Notice).*/i{subject}'
+
+local myrush = 'Subject=/.*This is your Final|Last (Chance|Reminder|Notice).*/i{header}'
 cnf['BETTER_HURRY'] = {
     re = string.format('(%s)', myrush),
     description = 'Final Reminders Spam',
@@ -123,12 +118,15 @@ cnf['BETTER_HURRY'] = {
 -- --------------------------------------------------
 -- Text matching
 -- --------------------------------------------------
-
-local mydoc1 = '/.*You have (1|received a)? new (fax|document)+.*/i{subject}'
+-- combine DOC_OR_FAX_RECVD with HAS_ATTACHMENT in local.d/composites.conf to create a rule/score
+-- couldn't get 'local myvar1 = [[has_symbol(HAS_ATTACHMENT)]]' & 'rspamd_config:register_dependency('DOC_OR_FAX_RECVD', 'HAS_ATTACHMENT')' to work.......
+local mydoc1 = 'Subject=/.*You have (1|received )?(a )?new (fax|document)+.*/i{header}'
+--local mydoc2 = [[has_symbol(HAS_ATTACHMENT)]]
 cnf['DOC_OR_FAX_RECVD'] = {
-    re = string.format('(%s) && HAS_ATTACHMENT', mydoc1),
+--  re = string.format('(%s) && (%s)', mydoc1, mydoc2),
+    re = string.format('(%s)', mydoc1),
     description = 'Surprise - Your non existent fax sent you something....',
-    score = 40,
+    score = 0.0,
 }
 
 local mypass1 = '/.*I (do )?(know )?[a-zA-Z0-9]{1,99} one of your pass.*/i{body}'
@@ -172,4 +170,4 @@ rspamd_config.LANG_FILTER = {
   description = 'no ok languages',
 }
 
-rspamd_config:register_dependency('DOC_OR_FAX_RECVD', 'HAS_ATTACHMENT')
+-- rspamd_config:register_dependency('DOC_OR_FAX_RECVD', 'HAS_ATTACHMENT')
