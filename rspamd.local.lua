@@ -1,3 +1,8 @@
+-- --------------------------
+-- rspamd RegEx Module 're = /Foo/i{mime}'
+-- --------------------------
+
+-- {line suffix}
 --  {header} - header regexp
 --  {raw_header} - undecoded header regexp (e.g. without quoted-printable decoding)
 --  {mime_header} - MIME header regexp (applied for headers in MIME parts only)
@@ -12,6 +17,7 @@
 --  {words} - unicode normalized and lowercased words extracted from the text (excluding URLs), subject and From displayed name
 --  {raw_words} - same but with no normalization (converted to utf8 however)
 --  {stem_words} - unicode normalized, lowercased and stemmed words extracted from the text (excluding URLs), subject and From displayed name
+-- Flag
 --  Each regexp also supports the following flags:
 --  
 --  i - ignore case
@@ -36,31 +42,33 @@ local cnf = config['regexp'] -- Reconfigure or configure NEW Local Symbols (cnf)
 --    description = 'From Header contains Netflix somewhere',
 --    score = 2.5,
 --}
-
+-- --------------------------
 -- Initial Netflix spam Test
+-- --------------------------
 
 local myre1 = 'From=/.*netflix.com*/i{header}' -- Mind local here
 local myre2 = 'From=/.*netflix*/i{header}'
 local myre3 = '/NETFLIX/i{body}' -- Check the raw body for anycase Netflix
 
-cnf['NETFLIX_YET_NOT_NETFLIX'] = {
+cnf['NETFLIX_YETNOT_NETFLIX'] = {
 	re = string.format('!(%s) && ((%s) || (%s))', myre1, myre2, myre3), -- use string.format to create expression
 	score = 40,
-	description = 'From OR Body Contains Netflix AND NOT Mailed from Netflix.com',
+	description = 'From Contains Netflix AND NOT Mailed from Netflix.com',
 }
 
 -- Extend Netflix to other problematic domains - i.e. Apple - Lazy spammers but won't detect spoofs
-local myre11 = 'From=/.*(dhl|fedex|apple|amazon|samsung).com.*/i{header}' 
-local myre22 = 'From=/.*(dhl|fedex|apple|amazon|samsung).*/i{header}'
+local myre11 = 'From=/.*(dhl|fedex|apple|amazon|samsung|paypal).com.*/i{header}' 
+local myre22 = 'From=/.*(dhl|fedex|apple|amazon|samsung|paypal).*/i{header}'
 
 cnf['BOGUS_MAIL_FROM_APPLE'] = {
 	re = string.format('!(%s) && (%s)', myre11, myre22), -- use string.format to create expression
 	score = 40,
-	description = 'From Contains Apple/FedEx/DHL/Amazon/Samsung AND NOT Mailed from that domain',
+	description = 'From Contains Apple/DHL/Amazon/Samsung/Paypal AND NOT Mailed from that domain',
 }
 
+
 -- Local User Email in Subject
-local myren1 = 'Subject=/.*(user1|user2|user3|fred|dorris)@.*/i{header}' -- local here is 'local variable'
+local myren1 = 'Subject=/.*(gerry|jksharpe|katie|lochie|sam|sammi)@.*/i{header}' -- local here is 'local variable'
 
 cnf['SUBJECT_CONTAINS_LOCALUSEREMAIL'] = {
     re = string.format('(%s)', myren1),
@@ -69,7 +77,7 @@ cnf['SUBJECT_CONTAINS_LOCALUSEREMAIL'] = {
 }
 
 -- Polite Intro to User in Body
-local myrbn1 = '/(Hi|Hello|Dear) (user1|user2|user3|fred|dorris)@.*/i{body}'
+local myrbn1 = '/(Hi|Hello|Dear) (gerry|jksharpe|katie|lochie|sam|sammi)@.*/i{body}' -- local here is 'local variable'
 
 cnf['BODY_CONTAINS_POLITE_LOCALUSEREMAIL'] = {
     re = string.format('(%s)', myrbn1),
@@ -77,10 +85,65 @@ cnf['BODY_CONTAINS_POLITE_LOCALUSEREMAIL'] = {
     score = 40,
 }
 
+-- --------------------------
+-- Subject & Body Matching --
+-- --------------------------
+local myneib1 = '/.*Neighbou?r|next door|f[ua5\\&\\%]ck.*/i{subject}'
+local myneib2 = '/.*Neighbou?r|next door|f[ua5\\&\\%]ck.*/i{body}'
+
+cnf['SUBJ_NEXTDOOR'] = {
+    re = string.format('(%s) || (%s)', myneib1, myneib2),
+    description = 'Subject/Body re Neighbour or next Door or H*ck',
+    score = 40,
+}
+
+local mypharma1 = '/.*viagra|pills|edm|health secret|pharm.*/i{subject}'
+local mypharma2 = '/.*viagra|pills|edm|health secret|pharm.*/i{body}'
+
+cnf['MY_VIAGRA'] = {
+    re = string.format('(%s) || (%s)', mypharma1, mypharma2),
+    description = 'Subject or Body re Pharma / Viagra / Pills / Health Secret',
+    score = 40,
+}
+
+local myrush = '/.*This is your Final|Last (Chance|Reminder|Notice).*/i{subject}'
+cnf['BETTER_HURRY'] = {
+    re = string.format('(%s)', myrush),
+    description = 'Final Reminders Spam',
+    score = 40,
+}
+
+local myrush = '/.*This is your Final|Last (Chance|Reminder|Notice).*/i{subject}'
+cnf['BETTER_HURRY'] = {
+    re = string.format('(%s)', myrush),
+    description = 'Final Reminders Spam',
+    score = 40,
+}
+
+-- --------------------------------------------------
+-- Text matching
+-- --------------------------------------------------
+
+local mydoc1 = '/.*You have (1|received a)? new (fax|document)+.*/i{subject}'
+cnf['DOC_OR_FAX_RECVD'] = {
+    re = string.format('(%s) && HAS_ATTACHMENT', mydoc1),
+    description = 'Surprise - Your non existent fax sent you something....',
+    score = 40,
+}
+
+local mypass1 = '/.*I (do )?(know )?[a-zA-Z0-9]{1,99} one of your pass.*/i{body}'
+local mypass2 = '/.*I actually (installed|placed) a (malware|software) on the (18+|xxx) (streaming|videos|video clips) ((porn|porno|sexually graphic)).*/i{body}'
+cnf['MY_LEAKED_PWD'] = {
+    re = string.format('(%s) || (%s)', mypass1, mypass2),
+    description = 'Gosh, you know my password.....',
+    score = 40,
+}
+-- --------------------------------------------------
+-- English please, I'm a boomer Australian
+-- --------------------------------------------------
 
 local ok_langs = {
   ['en'] = true,
-  ['ca'] = true,
 }
 
 rspamd_config.LANG_FILTER = {
@@ -109,5 +172,4 @@ rspamd_config.LANG_FILTER = {
   description = 'no ok languages',
 }
 
-
-
+rspamd_config:register_dependency('DOC_OR_FAX_RECVD', 'HAS_ATTACHMENT')
