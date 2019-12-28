@@ -43,7 +43,7 @@ local myre1 = 'From=/.*netflix.com*/i{header}' -- Mind local here
 local myre2 = 'From=/.*netflix*/i{header}'
 local myre3 = '/NETFLIX/i{body}' -- Check the raw body for anycase Netflix
 
-cnf['NETFLIX_YETNOT_NETFLIX'] = {
+cnf['NETFLIX_YET_NOT_NETFLIX'] = {
 	re = string.format('!(%s) && ((%s) || (%s))', myre1, myre2, myre3), -- use string.format to create expression
 	score = 40,
 	description = 'From OR Body Contains Netflix AND NOT Mailed from Netflix.com',
@@ -59,24 +59,17 @@ cnf['BOGUS_MAIL_FROM_APPLE'] = {
 	description = 'From Contains Apple/FedEx/DHL/Amazon/Samsung AND NOT Mailed from that domain',
 }
 
-
-
 -- Local User Email in Subject
-local myren1 = 'Subject=/.*gerry@.*/i{header}' -- local here is 'local variable'
-local myren2 = 'Subject=/.*jksharpe@.*/i{header}'
-local myren3 = 'Subject=/.*katie@.*/i{header}'
-local myren4 = 'Subject=/.*sam@.*/i{header}'
-local myren5 = 'Subject=/.*sammi@.*/i{header}'
-local myren6 = 'Subject=/.*lochie@.*/i{header}'
+local myren1 = 'Subject=/.*(user1|user2|user3|fred|dorris)@.*/i{header}' -- local here is 'local variable'
 
 cnf['SUBJECT_CONTAINS_LOCALUSEREMAIL'] = {
-    re = string.format('(%s) || (%s) || (%s) || (%s) || (%s) || (%s)', myren1, myren2, myren3, myren4, myren5, myren6),
+    re = string.format('(%s)', myren1),
     description = 'Subject contains Local User email address',
     score = 40,
 }
 
 -- Polite Intro to User in Body
-local myrbn1 = '/(Hi|Hello|Dear) (gerry|jksharpe|katie|lochie|sam|sammi)@.*/i{body}' -- local here is 'local variable'
+local myrbn1 = '/(Hi|Hello|Dear) (user1|user2|user3|fred|dorris)@.*/i{body}'
 
 cnf['BODY_CONTAINS_POLITE_LOCALUSEREMAIL'] = {
     re = string.format('(%s)', myrbn1),
