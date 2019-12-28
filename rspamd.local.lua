@@ -94,7 +94,7 @@ local myneib2 = '/.*(Neighbou?r|next door|f.+ck).*/i{body}'
 cnf['SUBJ_NEXTDOOR'] = {
     re = string.format('(%s) || (%s)', myneib1, myneib2),
     description = 'Subject/Body re Neighbour or next Door or H*ck',
-    score = 40,
+    score = 2,
 }
 
 local mypharma1 = 'Subject=/.*viagra|pills|health secret|pharm.*/i{header}'
@@ -103,7 +103,7 @@ local mypharma2 = '/.*viagra|pills|health secret|pharm.*/i{body}'
 cnf['MY_VIAGRA'] = {
     re = string.format('(%s) || (%s)', mypharma1, mypharma2),
     description = 'Subject or Body re Pharma / Viagra / Pills / Health Secret',
-    score = 40,
+    score = 2,
 }
 
 
@@ -112,7 +112,7 @@ local myrush = 'Subject=/.*This is your Final|Last (Chance|Reminder|Notice).*/i{
 cnf['BETTER_HURRY'] = {
     re = string.format('(%s)', myrush),
     description = 'Final Reminders Spam',
-    score = 40,
+    score = 2,
 }
 
 -- --------------------------------------------------
