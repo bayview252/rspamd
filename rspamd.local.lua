@@ -46,7 +46,7 @@ local cnf = config['regexp'] -- Reconfigure or configure NEW Local Symbols (cnf)
 -- NO SPF HELO revd by Relay
 -- --------------------------
 
---local mynohelo1 = '/SPF_HELO_NONE/i{body}' 
+--local mynohelo1 = '/SPF_HELO_NONE/i{raw_header}' 
 
 --cnf['RLY_NOSPFHELO'] = {
 --	re = string.format('(%s)', mynohelo1), -- use string.format to create expression
