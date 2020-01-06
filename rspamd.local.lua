@@ -77,14 +77,15 @@ cnf['BOGUS_MAIL_FROM_APPLE'] = {
 	description = 'From Contains Apple/DHL/Amazon/Samsung/Paypal AND NOT Mailed from that domain',
 }
 -- Misc subject or body words of no interest
-local myrew1 = 'Subject=/.*erection|bitcoin|bit coin.*/i{header}' 
-local myrew2 = '/erection|bitcoin|bit coin/i{body}' -- Check the raw body
+local myrew1 = 'Subject=/.*erection|bitcoin|bit coin|business (lead|list).*/i{header}' 
+local myrew2 = '/erection|bitcoin|bit coin|business (lead|list)/i{body}' -- Check the raw body
 
 cnf['SUBJ_NO_INTEREST'] = {
-	re = string.format('!(%s) || (%s)', myrew1, myrew2), -- use string.format to create expression
+	re = string.format('(%s) || (%s)', myrew1, myrew2), -- use string.format to create expression
 	score = 40,
 	description = 'Misc subject or body words of no interest (Bitcoin / ED Medz)',
 }
+
 
 
 -- Local User Email in Subject
