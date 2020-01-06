@@ -43,10 +43,21 @@ local cnf = config['regexp'] -- Reconfigure or configure NEW Local Symbols (cnf)
 --    score = 2.5,
 --}
 -- --------------------------
+-- NO SPF HELO revd by Relay
+-- --------------------------
+
+--local mynohelo1 = '/SPF_HELO_NONE/i{body}' 
+
+--cnf['RLY_NOSPFHELO'] = {
+--	re = string.format('(%s)', mynohelo1), -- use string.format to create expression
+--	score = 40,
+--	description = 'NO SPF HELO received by relay',
+--}
+-- --------------------------
 -- Initial Netflix spam Test
 -- --------------------------
 
-local myre1 = 'From=/.*netflix.com*/i{header}' -- Mind local here
+local myre1 = 'From=/.*netflix.com.*/i{header}' -- Mind local here
 local myre2 = 'From=/.*netflix*/i{header}'
 local myre3 = '/NETFLIX/i{body}' -- Check the raw body for anycase Netflix
 
@@ -57,13 +68,22 @@ cnf['NETFLIX_YETNOT_NETFLIX'] = {
 }
 
 -- Extend Netflix to other problematic domains - i.e. Apple - Lazy spammers but won't detect spoofs
-local myre11 = 'From=/.*(dhl|fedex|apple|amazon|samsung|paypal).com.*/i{header}' 
-local myre22 = 'From=/.*(dhl|fedex|apple|amazon|samsung|paypal).*/i{header}'
+local myre11 = 'From=/.*(dhl|fedex|apple|amazon|samsung|paypal|google).com.*/i{header}' 
+local myre22 = 'From=/.*(dhl|fedex|apple|amazon|samsung|paypal|google).*/i{header}'
 
 cnf['BOGUS_MAIL_FROM_APPLE'] = {
 	re = string.format('!(%s) && (%s)', myre11, myre22), -- use string.format to create expression
 	score = 40,
 	description = 'From Contains Apple/DHL/Amazon/Samsung/Paypal AND NOT Mailed from that domain',
+}
+-- Misc subject or body words of no interest
+local myrew1 = 'Subject=/.*erection|bitcoin|bit coin.*/i{header}' 
+local myrew2 = '/erection|bitcoin|bit coin/i{body}' -- Check the raw body
+
+cnf['SUBJ_NO_INTEREST'] = {
+	re = string.format('!(%s) || (%s)', myrew1, myrew2), -- use string.format to create expression
+	score = 40,
+	description = 'Misc subject or body words of no interest (Bitcoin / ED Medz)',
 }
 
 
@@ -77,7 +97,7 @@ cnf['SUBJECT_CONTAINS_LOCALUSEREMAIL'] = {
 }
 
 -- Polite Intro to User in Body
-local myrbn1 = '/(Hi|Hello|Dear) (gerry|jksharpe|katie|lochie|sam|sammi)@.*/i{body}' -- local here is 'local variable'
+local myrbn1 = '/(Hi|Hello|Dear|Congratulations) (gerry|jksharpe|katie|lochie|sam|sammi)@.*/i{body}' -- local here is 'local variable'
 
 cnf['BODY_CONTAINS_POLITE_LOCALUSEREMAIL'] = {
     re = string.format('(%s)', myrbn1),
@@ -97,8 +117,8 @@ cnf['SUBJ_NEXTDOOR'] = {
     score = 20,
 }
 
-local mypharma1 = 'Subject=/.*viagra|pills|health secret|pharm.*/i{header}'
-local mypharma2 = '/.*viagra|pills|health secret|pharm.*/i{body}'
+local mypharma1 = 'Subject=/.*viagra|pills|health secret|pharmacy.*/i{header}'
+local mypharma2 = '/.*viagra|pills|health secret|pharmacy.*/i{body}'
 
 cnf['MY_VIAGRA'] = {
     re = string.format('(%s) || (%s)', mypharma1, mypharma2),
@@ -166,7 +186,7 @@ rspamd_config.LANG_FILTER = {
     end
     return 1.0,ln
   end,
-  score = 40.0,
+  score = 150.0,
   description = 'no ok languages',
 }
 
