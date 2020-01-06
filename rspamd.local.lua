@@ -88,7 +88,7 @@ cnf['SUBJ_NO_INTEREST'] = {
 
 
 -- Local User Email in Subject
-local myren1 = 'Subject=/.*(gerry|jksharpe|katie|lochie|sam|sammi)@.*/i{header}' -- local here is 'local variable'
+local myren1 = 'Subject=/.*(user1|user2)@.*/i{header}' -- obfuscated
 
 cnf['SUBJECT_CONTAINS_LOCALUSEREMAIL'] = {
     re = string.format('(%s)', myren1),
@@ -97,7 +97,7 @@ cnf['SUBJECT_CONTAINS_LOCALUSEREMAIL'] = {
 }
 
 -- Polite Intro to User in Body
-local myrbn1 = '/(Hi|Hello|Dear|Congratulations) (gerry|jksharpe|katie|lochie|sam|sammi)@.*/i{body}' -- local here is 'local variable'
+local myrbn1 = '/(Hi|Hello|Dear|Congratulations) (john|mary)@.*/i{body}' -- obfuscated
 
 cnf['BODY_CONTAINS_POLITE_LOCALUSEREMAIL'] = {
     re = string.format('(%s)', myrbn1),
